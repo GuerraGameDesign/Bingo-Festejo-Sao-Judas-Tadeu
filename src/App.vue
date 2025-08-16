@@ -2,14 +2,19 @@
   <div class="h-[80vh]">
     <!-- Header com os botões e o dropdown -->
     <header class="flex justify-end gap-2 p-4">
+      <!--
       <Button
         label="Sortear Número"
         @click="
           sortearNumero(), (modalDoSorteio = true), (removerNumeroManualmente = false)
         "
       />
+      -->
+      <Button @click="info = true">
+        <span class="border border-white rounded-full font-semibold px-2.5"> i </span>
+      </Button>
       <Button
-        label="Remover Número"
+        label="Escolher Número"
         @click="(removerNumeroManualmente = true), (modalDoSorteio = true)"
       />
       <AutoComplete
@@ -51,10 +56,13 @@
             <li
               v-for="numero in coluna.numeros"
               :key="numero"
-              class="flex justify-center items-center mx-1 font-bold border-primary-100 p-1 w-14 h-14 rounded-full bg-primary-500 text-primary-100"
+              class="flex justify-center items-center mx-1 font-bold border-primary-100 p-1 w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary-500 text-primary-100 cursor-pointer hover:bg-primary-400 select-none"
               :class="
-                orientacao.id == 2 ? 'text-2xl border-t-1' : 'border-l-1 text-4xl p-4'
+                orientacao.id == 2
+                  ? 'text-xl md:text-2xl border-t-1 md:w-[39px] md:h-[39px]'
+                  : 'border-l-1 text-4xl p-4'
               "
+              @dblclick="onNumeroDblClick(coluna.letra, numero)"
             >
               {{ numero }}
             </li>
@@ -92,7 +100,7 @@
             <li
               v-for="numero in coluna.numeros"
               :key="numero"
-              class="text-center py-2.5 font-bold my-1 border-white p-1 w-14 h-14 text-2xl border-t-1 bg-primary-400 hover:bg-primary-500 rounded-full mx-auto cursor-pointer"
+              class="text-center py-2.5 font-bold my-1 border-white p-1 w-14 h-14 text-2xl border-t-1 bg-primary-400 hover:bg-primary-500 rounded-full mx-auto cursor-pointer select-none"
               @click="removerNumero(coluna.letra, numero)"
             >
               {{ numero }}
@@ -104,6 +112,12 @@
     <h1 v-else class="flex justify-center items-center">
       <p class="text-8xl font-bold">{{ numeroSorteado }}</p>
     </h1>
+  </Dialog>
+  <Dialog v-model:visible="info" header="Informações" :style="{ width: '30rem' }" modal>
+    <p>
+      Para escolher um número é só clicar em "Escolher Número" e clicar no número
+      sorteado. Para remover um número do bingo é só dar dois cliques nele.
+    </p>
   </Dialog>
 </template>
 
@@ -154,9 +168,33 @@ export default {
         { letra: "G", numeros: [] },
         { letra: "O", numeros: [] },
       ],
+      info: false,
     };
   },
+  mounted() {
+    if (window.innerWidth <= 768) {
+      this.orientacao = { id: 2, rotulo: "Vertical" };
+    } else {
+      this.orientacao = { id: 1, rotulo: "Horizontal" };
+    }
+  },
   methods: {
+    // a função abaixo devolve um número para a coluna
+    onNumeroDblClick(letra, numero) {
+      // o número volta para a coluna
+      this.colunas.forEach((coluna) => {
+        if (coluna.letra === letra) {
+          coluna.numeros.push(numero);
+          coluna.numeros.sort((a, b) => a - b);
+        }
+      });
+      // o número é apagado do bingo
+      this.bingo.forEach((colunaDoBingo) => {
+        if (colunaDoBingo.letra === letra) {
+          colunaDoBingo.numeros.splice(colunaDoBingo.numeros.indexOf(numero), 1);
+        }
+      });
+    },
     // a função abaixo irá sortear os números das colunas
     sortearNumero() {
       if (this.colunas.length > 0) {
