@@ -2,14 +2,12 @@
   <div class="h-[80vh]">
     <!-- Header com os botões e o dropdown -->
     <header class="flex justify-end gap-2 p-4">
-      <!--
       <Button
         label="Sortear Número"
         @click="
           sortearNumero(), (modalDoSorteio = true), (removerNumeroManualmente = false)
         "
       />
-      -->
       <Button @click="info = true">
         <span class="border border-white rounded-full font-semibold px-2.5"> i </span>
       </Button>
@@ -23,6 +21,7 @@
         field="icone"
         placeholder="Orientação"
         optionLabel="rotulo"
+        inputClass="bg-[#f0fdf0ff]"
         dropdown
         @complete="buscarOrientacoes"
       >
